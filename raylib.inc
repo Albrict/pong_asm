@@ -1,10 +1,12 @@
 extern  InitWindow
+extern  CloseWindow
 extern  SetTargetFPS
 extern  WindowShouldClose
 extern  BeginDrawing
 extern  EndDrawing
 extern  ClearBackground
 extern  DrawRectangle
+extern  IsKeyDown 
 
 %ifdef LINUX
     %define first_arg  rdi 
@@ -18,38 +20,47 @@ extern  DrawRectangle
 %error Please define OS
 %endif
 
+%define KEY_W 87
+%define KEY_S 83
+
 %macro init_window 3
-    push rbp            ; Set up stack frame
+    push rbp
     mov  first_arg,  %1 ; Window width
     mov  second_arg, %2 ; Window height
     mov  third_arg,  %3 ; Window title
     call InitWindow
-    pop  rbp            ; Restore stack
+    pop  rbp 
+%endmacro
+
+%macro close_window 0
+    push rbp
+    call CloseWindow 
+    pop  rbp 
 %endmacro
 
 %macro set_target_fps 1
-    push rbp           ; Set up stack frame
+    push rbp  
     mov  first_arg, %1 ; FPS 
     call SetTargetFPS 
-    pop  rbp           ; Restore stack
+    pop  rbp   
 %endmacro
 
 %macro begin_drawing 0
-    push rbp          ; Set up stack frame
+    push rbp    
     call BeginDrawing 
-    pop  rbp          ; Restore stack
+    pop  rbp     
 %endmacro
 
 %macro end_drawing 0
-    push rbp        ; Set up stack frame
+    push rbp      
     call EndDrawing
-    pop  rbp        ; Restore stack
+    pop  rbp       
 %endmacro
 
 %macro window_should_close 0
-    push rbp        ; Set up stack frame
+    push rbp        
     call WindowShouldClose 
-    pop  rbp        ; Restore stack
+    pop  rbp        
 %endmacro
 
 %macro clear_background 1
@@ -69,5 +80,13 @@ extern  DrawRectangle
     mov  fouth_arg,  [%1 + 12]  ; height
     mov  fifth_arg,  %2         ; color
     call DrawRectangle
+    pop  rbp
+%endmacro
+
+; Check if key pressed
+%macro is_key_down 1
+    push rbp          
+    mov  first_arg, %1 ; Key code
+    call IsKeyDown 
     pop  rbp
 %endmacro
