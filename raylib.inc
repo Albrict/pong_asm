@@ -7,6 +7,10 @@ extern  EndDrawing
 extern  ClearBackground
 extern  DrawRectangle
 extern  IsKeyDown 
+extern  DrawRectangleRec
+extern  GetFrameTime
+extern  DrawCircleV
+extern  GetRandomValue
 
 %ifdef LINUX
     %define first_arg  rdi 
@@ -14,6 +18,9 @@ extern  IsKeyDown
     %define third_arg  rdx
     %define fouth_arg  rcx 
     %define fifth_arg  r8
+
+    %define first_float_arg  xmm0
+    %define second_float_arg xmm1
 %elifdef WINDOWS 
 
 %else
@@ -36,6 +43,12 @@ extern  IsKeyDown
     push rbp
     call CloseWindow 
     pop  rbp 
+%endmacro
+
+%macro get_frame_time 0
+    push rbp
+    call GetFrameTime
+    pop  rbp
 %endmacro
 
 %macro set_target_fps 1
@@ -70,16 +83,30 @@ extern  IsKeyDown
     pop  rbp             ; Restore stack
 %endmacro
 
-; Draw rectangle macro. First argument is address of 16 byte memory
-; filled with x, y, width and height. Second argument is rectangle color
-%macro draw_rectangle 2
+
+%macro draw_rectangle_rec 2
     push rbp
-    mov  first_arg,  [%1]       ; x position 
-    mov  second_arg, [%1 + 4]   ; y position 
-    mov  third_arg,  [%1 + 8]   ; width
-    mov  fouth_arg,  [%1 + 12]  ; height
-    mov  fifth_arg,  %2         ; color
-    call DrawRectangle
+    movq first_float_arg, [%1]     ; Rectangle x and y
+    movq second_float_arg, [%1 + 8] ; Rectangle width and height
+    mov  first_arg, %2  ; Color of rectangle
+    call DrawRectangleRec
+    pop  rbp
+%endmacro
+
+%macro draw_circle_v 3
+    push rbp
+    movq  first_float_arg,  [%1]; Circle x and y
+    movss second_float_arg, %2  ; Radius
+    mov   first_arg, %3         ; Color of circle
+    call DrawCircleV 
+    pop  rbp
+%endmacro
+
+%macro get_random_value 2
+    push rbp
+    mov  first_arg,  %1 ; Minimal value
+    mov  second_arg, %2 ; Max value
+    call GetRandomValue
     pop  rbp
 %endmacro
 
