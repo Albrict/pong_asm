@@ -11,6 +11,10 @@ extern  DrawRectangleRec
 extern  GetFrameTime
 extern  DrawCircleV
 extern  GetRandomValue
+extern  CheckCollisionCircleRec
+extern  TextFormat
+extern  DrawText
+extern  TextFormat
 
 %ifdef LINUX
     %define first_arg  rdi 
@@ -18,17 +22,22 @@ extern  GetRandomValue
     %define third_arg  rdx
     %define fouth_arg  rcx 
     %define fifth_arg  r8
+    %define vector_arg rax
 
     %define first_float_arg  xmm0
     %define second_float_arg xmm1
+    %define third_float_arg  xmm2
+    %define fouth_float_arg  xmm3
 %elifdef WINDOWS 
 
 %else
 %error Please define OS
 %endif
 
-%define KEY_W 87
-%define KEY_S 83
+%define KEY_W    87
+%define KEY_S    83
+%define KEY_UP   265
+%define KEY_DOWN 264
 
 %macro init_window 3
     push rbp
@@ -108,6 +117,36 @@ extern  GetRandomValue
     mov  second_arg, %2 ; Max value
     call GetRandomValue
     pop  rbp
+%endmacro
+
+%macro check_collision_circle_rec 3
+    push rbp 
+    movq  first_float_arg,  [%1]     ; Circle x and y
+    movss second_float_arg,  %2      ; Radius of circle
+    movq  third_float_arg,  [%3]     ; Rectangle x and y 
+    movq  fouth_float_arg,  [%3 + 8] ; Rectangle width and height
+    call  CheckCollisionCircleRec
+    pop  rbp
+%endmacro
+
+%macro draw_text 5
+    push rbp
+    mov first_arg, %1  ; Text
+    mov second_arg, %2 ; x position
+    mov third_arg, %3  ; y position
+    mov fouth_arg, %4  ; font size
+    mov fifth_arg, %5  ; color
+    call DrawText
+    pop rbp
+%endmacro
+
+%macro format_num 2 
+    push rbp
+    mov first_arg,  %1 ; Text
+    mov second_arg, %2 ; Number 
+    mov vector_arg,  0 ; vector args
+    call TextFormat
+    pop rbp
 %endmacro
 
 ; Check if key pressed
